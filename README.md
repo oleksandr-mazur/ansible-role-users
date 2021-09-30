@@ -12,8 +12,8 @@ Example requirements.yml
 ```yaml
 # Install a role from a specific git branch
 - name: users
-  src: https://git.devops.kiev.ua/ansible/ansible-users/archive/master.tar.gz
-  version: origin/master
+  src: https://github.com/oleksandr-mazur/ansible-role-users
+  version: master
 ```
 Install requirements
 --------------------
