@@ -1,0 +1,11 @@
+{% if 'ALL' in item.sudoers %}
+{{ item.username }}  ALL=(ALL:ALL) NOPASSWD:ALL
+{% endif %}
+
+{% if 'SUPEVISOR' in item.sudoers %}
+{{ item.username }}  ALL=(ALL:ALL) NOPASSWD:/usr/bin/systemctl restart supervisord.service, /usr/bin/systemctl stop supervisord.service, /usr/bin/systemctl start supervisord.service, /usr/bin/supervisorctl
+{% endif %}
+
+{% if 'NGINX' in item.sudoers %}
+{{ item.username }}  ALL=(ALL:ALL) NOPASSWD:/usr/bin/systemctl reload nginx.service, /usr/bin/systemctl restart nginx.service, /usr/bin/systemctl stop nginx.service, /usr/bin/systemctl start nginx.service, /usr/sbin/nginx -t, /usr/sbin/nginx -s reload
+{% endif %}

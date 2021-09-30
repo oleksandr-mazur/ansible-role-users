@@ -1,0 +1,44 @@
+---
+# tasks file for users
+- name: Create group for user
+  become: True
+  group:
+    name: "{{ item.group | default(item.username) }}"
+  with_items: "{{ users }}"
+  when: item.state|default(default_state) == "present"
+
+- name: Create user
+  become: True
+  user:
+    remove: yes
+    force: yes
+    name: "{{ item.username }}"
+    group: "{{ item.group | default(item.username) }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+    state: "{{ item.state|default(default_state) }}"
+  with_items: "{{ users }}"
+
+- name: Directory for ssh 
+  become: True
+  file: path=/home/{{ item.username }}/.ssh state=directory mode=0700 owner={{ item.username }} group={{ item.group | default(item.username) }}
+  with_items: "{{ users }}"
+  when:  item.state|default(default_state) == "present"
+
+- name: Update ssh keys
+  become: True
+  with_items: "{{ users }}"
+  authorized_key:
+    user: "{{ item.username }}"
+    key: "{% for x in item.get('ssh-keys') %}{{ lookup('file', x) }}\n{% endfor %}"
+    state: "{{ item.state|default(default_state) }}"
+    exclusive: yes
+  when: item.state|default(default_state) == "present"
+
+- name: Update sudoers privileges
+  become: yes
+  with_items: "{{ users }}"
+  template:
+    src="templates/sudoers.j2"
+    dest="/etc/sudoers.d/{{ item.username }}"
+  when: (item.sudoers is defined)
+
